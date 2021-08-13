@@ -16,7 +16,7 @@ int CheckShader(GLuint Shader, char* message){
 // function to create and compile the shaders
 GLuint CreateProgram(const char* vertexPath, const char* fragmentPath){
 	Shaders shaders;
-	GLuint shaderProgram
+	GLuint shaderProgram;
 	// read shaders from file
 	FILE * vertexfp = fopen(vertexPath, "r");
 	FILE * fragmentfp = fopen(fragmentPath, "r");
@@ -55,6 +55,7 @@ GLuint CreateProgram(const char* vertexPath, const char* fragmentPath){
 	free(shaderStatus);
 	free(vertexShaderSource);
 	free(fragmentShaderSource);
+
 	// create OpenGL GPU program
 	// out of Vertex and Fragment shader
 	shaderProgram = glCreateProgram();

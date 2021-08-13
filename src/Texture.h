@@ -1,10 +1,16 @@
 // function to load in a 2D texture
 GLuint LoadTexture2D(const char* filename, GLuint colorFormat, GLuint slot, GLuint minFilter, GLuint magFilter, GLuint wrapX, GLuint wrapY){
 
-	// texture
+	// OpenGL reads images backwards so we have to tell
+	// the image loading library to load it backwards as well
 	stbi_set_flip_vertically_on_load(1);
 	int widthImg, heightImg, numColch;
+
+	// load the image
 	unsigned char* imgBytes = stbi_load(filename, &widthImg, &heightImg, &numColch, 0);
+
+	// generate a OpenGL texture buffer
+	// and bind the texture
 	GLuint texture;
 	glGenTextures(1, &texture);
 	glActiveTexture(slot);
@@ -19,6 +25,7 @@ GLuint LoadTexture2D(const char* filename, GLuint colorFormat, GLuint slot, GLui
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, wrapX);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrapY);
 
+	// tell OpenGL what data to put into the texture
 	glTexImage2D(GL_TEXTURE_2D, 0, colorFormat, widthImg, heightImg, 0, colorFormat, GL_UNSIGNED_BYTE, imgBytes);
 
 	// generates smaller sized versions of the texture
