@@ -27,7 +27,30 @@ int main(void)
 		2, 3, 4,
 		3, 0, 4
 	};
-
+	GLfloat cubeVerts[] = {
+	-0.1f, -0.1f, 0.1f,		
+	-0.1f, -0.1f, -0.1f,
+	 0.1f, -0.1f, -0.1f,
+	 0.1f, -0.1f, 0.1f,
+	-0.1f,  0.1f, 0.1f,
+	-0.1f,  0.1f, -0.1f,
+	 0.1f,  0.1f, -0.1f,
+	 0.1f,  0.1f, 0.1f,
+	};
+	GLuint cubeIndices[] = {
+		0, 1, 2,
+		0, 2, 3,
+		0, 4, 7,
+		0, 7, 3,
+		3, 7, 6,
+		3, 6, 2,
+		2, 6, 5,
+		2, 5, 1,
+		1, 5, 4,
+		1, 4, 0,
+		4, 5, 6,
+		4, 6, 7,
+	};
 	/* Create a windowed mode window and its OpenGL context */
 	unsigned int winWidth = 1920;
 	unsigned int winHeight = 1080;
@@ -43,12 +66,10 @@ int main(void)
 	
 	// create and compile the shaders
 	GLuint shaderProgram = CreateProgram("src/shaders/vertex.shader", "src/shaders/fragment.shader");
-	//if (!shaders.vertexShader || !shaders.fragmentShader){
-	//	printf("Shaders failed!\n");
-	//	return -1;
-	//}
-	
-
+	if (shaderProgram == 0){
+		printf("Shaders Failed!\n");
+		return -1;
+	}
 
 	// create the OpenGL buffers
 	Buffers buffers = Buffer(verts, indices, sizeof(verts), sizeof(indices));
@@ -60,15 +81,21 @@ int main(void)
 	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
 	glEnableVertexAttribArray(0);
 	glEnableVertexAttribArray(1);
-	
-	// unbind the GL Array and Element Buffer
-	// (this is uneeded but is good practice for bigger programs
-	// that might change the buffers after they have been bound
-	// which will cause problems)
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
-	glBindVertexArray(0);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-	
+	UnbindAll();
+
+	GLuint cubeprogram = CreateProgram("src/shaders/cubevertex.shader", "src/shaders/cubefragment.shader");
+	Buffers cubeBuffers = Buffer(cubeVerts, cubeIndices, sizeof(cubeVerts), sizeof(cubeIndices));
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+	glEnableVertexAttribArray(0);
+	UnbindAll();	
+
+	vec3 cubePos = {0.5f, 0.5f, 0.5f};
+	mat4 cubeModel = glm_mat4_identity(cubeModel);
+	glm_translate(cubeModel, cubePos);
+
+	vec3 pyramidPos = {0.0f, 0.0f, 0.0f};
+	mat4 pyramideModel = glm_mat4_identity(pyramidModel);
+	glm_translate(pyramidModel, pyramidPos);
 	// create texture
 	GLuint texture = LoadTexture2D("src/textures/brick.png", GL_RGBA ,GL_TEXTURE0, GL_NEAREST, GL_NEAREST, GL_REPEAT, GL_REPEAT);
 
@@ -87,8 +114,11 @@ int main(void)
 	glBindTexture(GL_TEXTURE_2D, texture);
 
 	// tell shader what texture slot we want to use
-	double prevTime = glfwGetTime();
 	glUniform1i(u_tex, 0);
+	
+	mat4 cameraMatrix;
+	glm_mat4_identity(cameraMatrix);
+	double prevTime = glfwGetTime();
 	unsigned char firstClick = 1;
 	float speed = 0.1f;
 	float sensitivity = 100.0f;
@@ -118,8 +148,8 @@ int main(void)
 		// get user input
 		GetInput(window, winWidth, winHeight, &orientation, position, up, down, speed, sensitivity, &firstClick);
 		// apply to camera
-		Camera(&position, orientation, u_cam, 45.0f, winWidth, winHeight, 0.1f, 100.0f, up);
-		
+		UpdateCamera(&cameraMatrix, &position, orientation, u_cam, 45.0f, winWidth, winHeight, 0.1f, 100.0f, up);
+		CameraUniform(u_cam, cameraMatrix);
 
 		// Bind the Vertex Array Object to VAO
 		glBindVertexArray(buffers.VAO);

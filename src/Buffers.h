@@ -24,3 +24,12 @@ Buffers Buffer(GLfloat* verts, GLuint* indices, size_t sizeOfVerts, size_t sizeO
 
 
 }
+void UnbindAll(){
+	// unbind the GL Array and Element Buffer
+	// (this is uneeded but is good practice for bigger programs
+	// that might change the buffers after they have been bound
+	// which will cause problems)
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	glBindVertexArray(0);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+}
