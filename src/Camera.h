@@ -1,4 +1,4 @@
-void UpdateCamera(mat4* cameraMatrix, vec3 *position, vec3 orientation, GLuint u_cam, float FOVdeg, unsigned int winWidth, unsigned int winHeight, float viewMin, float viewMax, vec3 up){ 
+void UpdateCamera(mat4* cameraMatrix, vec3 *position, vec3 orientation, float FOVdeg, unsigned int winWidth, unsigned int winHeight, float viewMin, float viewMax, vec3 up){ 
 		// create the 4x4 identity matrices
 		mat4 view;
 		mat4 proj;
@@ -16,6 +16,6 @@ void UpdateCamera(mat4* cameraMatrix, vec3 *position, vec3 orientation, GLuint u
 
 		glm_mat4_mul(proj, view, *cameraMatrix);	
 }
-void CameraUniform(GLuint u_cam, mat4 cameraMatrix){
-	glUniformMatrix4fv(u_cam, 1, GL_FALSE, *cameraMatrix);
+void CameraUniform(mat4 cameraMatrix, const char* uniform, GLuint program){
+	glUniformMatrix4fv(glGetUniformLocation(program, uniform), 1, GL_FALSE, *cameraMatrix);
 }
