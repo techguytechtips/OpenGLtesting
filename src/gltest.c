@@ -70,13 +70,15 @@ int main(void)
 	
 	// create and compile the shaders
 	GLuint pyramidProgram = CreateProgram("src/shaders/vertex.shader", "src/shaders/fragment.shader");
-	if (pyramidProgram == 0){
+	GLuint cubeProgram = CreateProgram("src/shaders/cubevertex.shader", "src/shaders/cubefragment.shader");
+
+	if (pyramidProgram == 0 || cubeProgram == 0){
 		printf("Shaders Failed!\n");
 		return -1;
 	}
 
-	// create the OpenGL buffers
-	Buffers buffers = Buffer(verts, indices, sizeof(verts), sizeof(indices));
+	// create and bind the pyramid buffers
+	Buffers pyramidBuffers = Buffer(verts, indices, sizeof(verts), sizeof(indices));		
 
 	// tell the vertex shader the diffrent attributes of the vertices for the pyramid
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), 0);
@@ -85,9 +87,10 @@ int main(void)
 	glEnableVertexAttribArray(1);
 	UnbindAll();
 
-	// tell the vertex shader the diffrent attributes of the vertices for the cube light
-	GLuint cubeProgram = CreateProgram("src/shaders/cubevertex.shader", "src/shaders/cubefragment.shader");
+	// create and bind the cube buffers 
 	Buffers cubeBuffers = Buffer(cubeVerts, cubeIndices, sizeof(cubeVerts), sizeof(cubeIndices));
+
+	// tell the vertex shader the diffrent attributes of the vertices for the cube light
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
 	glEnableVertexAttribArray(0);
 	UnbindAll();	
@@ -167,7 +170,6 @@ int main(void)
 		while(glfwGetTime() < prevTime + 1.0/60){}
 		prevTime += 1.0/60;
 
-
 		// get user input
 		GetInput(window, winWidth, winHeight, &orientation, position, up, down, speed, sensitivity, &firstClick);
 
@@ -182,7 +184,7 @@ int main(void)
 		glBindTexture(GL_TEXTURE_2D, texture);
 
 		// Bind the pyramid Vertex Array Object to VAO
-		glBindVertexArray(buffers.VAO);
+		glBindVertexArray(pyramidBuffers.VAO);
 			
 		// draw the pyramid
 		glDrawElements(GL_TRIANGLES, sizeof(indices)/sizeof(int), GL_UNSIGNED_INT, 0);
@@ -210,9 +212,9 @@ int main(void)
 	}
 
 	// the program is closing, so delete the buffers, texture(s), and shader program(s) and destory the window
-	glDeleteVertexArrays(1, &buffers.VAO);
-	glDeleteBuffers(1, &buffers.VBO);
-	glDeleteBuffers(1, &buffers.IBO);
+	glDeleteVertexArrays(1, &pyramidBuffers.VAO);
+	glDeleteBuffers(1, &pyramidBuffers.VBO);
+	glDeleteBuffers(1, &pyramidBuffers.IBO);
 	glDeleteBuffers(1, &cubeBuffers.VAO);
 	glDeleteBuffers(1, &cubeBuffers.VBO);
 	glDeleteBuffers(1, &cubeBuffers.IBO);
